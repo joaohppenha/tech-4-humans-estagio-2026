@@ -54,14 +54,12 @@ O processo seguiu o rigor metodológico de execução em três baterias por cen�
 * **Evidência que derrubaria a conclusão:** Se um aumento abrupto na concorrência (ex: 200 VUs) fizesse o bloqueio de linhas (*row-level locks*) superar o ganho das consultas unificadas, a arquitetura de banco relacional único exigiria particionamento ou CQRS.
 
 ## 8. Referências
-
 1. PostgreSQL Global Development Group. *PostgreSQL 16 Documentation: Chapter 11. Indexes*. Disponível em: <https://www.postgresql.org/docs/16/indexes.html>. Acesso em: 09 de novembro 2026.
 2. Caetano, M. et al. *Arquitetura de SGBD Relacionais — Indexação*. Grupo de Bases de Dados e Imagens (GBdI), Instituto de Ciências Matemáticas e de Computação (ICMC-USP). Disponível em: <https://sites.icmc.usp.br/caetano/scc243/Indexacao-Ler.pdf>. Acesso em: 09 de novembro 2026.
 3. Ramakrishnan, R.; Gehrke, J. *Database Management Systems*. 2. ed. McGraw-Hill, 2000.
-4. Turcotte, A.; Aldrich, M. W.; Tip, F. *Automated Refactoring of the N+1 Problem in Database-Backed Applications*. Proceedings of the 32nd IEEE/ACM International Conference on Automated Software Engineering (ASE), 2017. Disponível em: <https://www.franktip.org/pubs/ase2022.pdf>.Acesso em: 09 de novembro 2026.
+4. Turcotte, A.; Aldrich, M. W.; Tip, F. *Automated Refactoring of the N+1 Problem in Database-Backed Applications*. Proceedings of the 37th IEEE/ACM International Conference on Automated Software Engineering (ASE), 2017. Disponível em: <https://www.franktip.org/pubs/ase2022.pdf>.Acesso em: 09 de novembro 2026.
 5. Fowler, M. *Patterns of Enterprise Application Architecture*. Addison-Wesley, 2002.
 6. Kleppmann, M. *Designing Data-Intensive Applications*. O'Reilly Media, 2017.
-
 
 ## 9. Uso de IA
 Ferramentas de Inteligência Artificial generativa baseadas em modelos de linguagem avançados foram utilizadas apenas como assistentes de apoio na revisão da estruturação da investigação diagnóstica, também da sintaxe das consultas unificadas SQL/Node.js e da formatação estruturada do artigo técnico. Todas as hipóteses técnicas formuladas, o código-fonte gerado e as métricas apresentadas foram estritamente validados por meio de execução empírica, testes de contrato automatizados e extração de logs diretamente dos ambientes containerizados via Docker.
