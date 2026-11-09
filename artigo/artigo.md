@@ -19,7 +19,7 @@ Através de inspeção de logs e análise do código-fonte em `api/src/rotas.js`
 
 ### Índices Relacionais e Otimização de Varreduras (*Sequential Scans*)
 
-A literatura clássica de sistemas de gerência de banco de dados relacionais demonstra que varreduras sequenciais completas em tabelas volumosas possuem complexidade linear $\mathcal{O}(N)$, tornando-se proibitivas sob concorrência (Ramakrishnan & Gehrke, 2000). Pesquisas acadêmicas nacionais em SGBDs relacionais do Grupo de Bases de Dados e Imagens (GBdI da USP / ICMC) ressaltam que a indexação de atributos com alta seletividade (como chaves estrangeiras e identificadores) mitiga o custo de varredura em disco, substituindo o acesso linear por rotas de busca logarítmica estruturadas em árvores B-Tree e B+ (Caetano et al., USP; PostgreSQL Global Development Group, 2023).
+A literatura clássica de sistemas de gerência de banco de dados relacionais demonstra que varreduras sequenciais completas em tabelas volumosas possuem complexidade linear $\mathcal{O}(N)$, tornando-se proibitivas sob concorrência (Ramakrishnan & Gehrke, 2000). Pesquisas acadêmicas nacionais em SGBDs relacionais do Grupo de Bases de Dados e Imagens (GBdI da USP / ICMC) ressaltam que a indexação de atributos com alta seletividade (como chaves estrangeiras e identificadores) mitiga o custo de varredura em disco, substituindo o acesso linear por rotas de busca logarítmica estruturadas em árvores B-Tree e B+ (Traina Jr., Univeridade de São Paulo (USP); PostgreSQL Global Development Group, 2023).
 
 ### O Anti-padrão de Consultas N+1 na Camada de Aplicação
 
