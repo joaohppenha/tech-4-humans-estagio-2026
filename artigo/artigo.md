@@ -55,7 +55,7 @@ O processo seguiu o rigor metodológico de execução em três baterias por cen�
 
 ## 8. Referências
 1. PostgreSQL Global Development Group. *PostgreSQL 16 Documentation: Chapter 11. Indexes*. Disponível em: <https://www.postgresql.org/docs/16/indexes.html>. Acesso em: 09 de novembro 2026.
-2. Caetano, M. et al. *Arquitetura de SGBD Relacionais — Indexação*. Grupo de Bases de Dados e Imagens (GBdI), Instituto de Ciências Matemáticas e de Computação (ICMC-USP). Disponível em: <https://sites.icmc.usp.br/caetano/scc243/Indexacao-Ler.pdf>. Acesso em: 09 de novembro 2026.
+2. Traina Jr., Caetano. *Arquitetura de SGBD Relacionais — Indexação*. Grupo de Bases de Dados e Imagens (GBdI), Instituto de Ciências Matemáticas e de Computação (ICMC-USP). Disponível em: <https://sites.icmc.usp.br/caetano/scc243/Indexacao-Ler.pdf>. Acesso em: 09 de novembro 2026.
 3. Ramakrishnan, R.; Gehrke, J. *Database Management Systems*. 2. ed. McGraw-Hill, 2000.
 4. Turcotte, A.; Aldrich, M. W.; Tip, F. *Automated Refactoring of the N+1 Problem in Database-Backed Applications*. Proceedings of the 37th IEEE/ACM International Conference on Automated Software Engineering (ASE), 2017. Disponível em: <https://www.franktip.org/pubs/ase2022.pdf>.Acesso em: 09 de novembro 2026.
 5. Fowler, M. *Patterns of Enterprise Application Architecture*. Addison-Wesley, 2002.
