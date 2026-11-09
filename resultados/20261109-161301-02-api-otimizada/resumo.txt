@@ -1,0 +1,17 @@
+Medição: 02-api-otimizada
+Carga: 20 usuários virtuais por 60s
+
+Requisições:        484
+Requisições/s:      7.40
+Tempo de resposta:  mediana 530.0 ms | p95 11027.2 ms | p99 18862.5 ms
+Erros:              0.00%
+
+Por rota:
+rota                  req       mediana       p95           p99           erros   
+cliente               130       214.9 ms      347.0 ms      415.1 ms      0.0%    
+cliente-por-email     70        260.2 ms      375.9 ms      426.7 ms      0.0%    
+pedidos-do-cliente    98        3725.5 ms     6423.0 ms     7031.5 ms     0.0%    
+pedidos-por-status    64        2193.8 ms     14610.8 ms    17999.6 ms    0.0%    
+busca-produtos        81        528.6 ms      866.4 ms      914.1 ms      0.0%    
+vendas-por-dia        35        7822.7 ms     16135.5 ms    17296.2 ms    0.0%    
+top-produtos          6         27549.7 ms    39702.6 ms    39768.1 ms    0.0%    
