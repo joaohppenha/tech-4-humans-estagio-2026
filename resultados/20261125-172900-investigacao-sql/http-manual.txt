@@ -1,0 +1,35 @@
+TESTES HTTP MANUAIS
+Data: 25/11/2026
+Ambiente: API Node.js/Express e PostgreSQL 16
+
+1. GET /saude
+   Status: 200 OK
+   Corpo: {"status":"ok"}
+
+2. GET /clientes/1/pedidos
+   Status: 200 OK
+   Content-Length: 1061 bytes
+   Resultado: cinco pedidos retornados com seus itens.
+
+3. GET /clientes/999999/pedidos
+   Status: 404 Not Found
+   Corpo: {"erro":"cliente nao encontrado"}
+
+4. GET /clientes/abc/pedidos
+   Status: 400 Bad Request
+   Corpo: {"erro":"id invalido"}
+
+5. GET /clientes/0/pedidos
+   Status: 400 Bad Request
+   Corpo: {"erro":"id invalido"}
+
+6. GET /clientes/11 e GET /clientes/999999
+   Status: 404 Not Found
+   Corpo: {"erro":"rota nao encontrada"}
+   Observacao: a rota GET /clientes/:id nao esta implementada
+   na versao atual. Esses resultados nao indicam ausencia
+   dos clientes no banco.
+
+Observacao geral:
+Testes manuais pontuais. Nao substituem o teste automatizado
+de contrato com 42 casos.

@@ -1,0 +1,159 @@
+# Investigacao SQL - 25/11/2026
+
+## Objetivo
+Investigar consultas SQL da aplicacao para identificar gargalos que nao ficaram
+explicados apenas pela comparacao dos testes de carga da API.
+
+## Ambiente
+- PostgreSQL 16.
+- Banco com 100.000 clientes, 20.000 produtos, 500.000 pedidos e 1.500.000 itens.
+- Testes exploratorios executados no Codespace.
+- Consultas analisadas com EXPLAIN (ANALYZE, BUFFERS).
+
+## Cuidados metodologicos
+Estes experimentos sao exploratorios. Nao equivalem a testes oficiais de carga
+da API nem a uma bateria controlada de tres repeticoes.
+Os tempos podem variar conforme o estado do cache e a carga do ambiente.
+
+## Experimento 1 - Filtro por data
+
+Periodo analisado: 01/01/2024 a 07/01/2024.
+
+### Consulta original
+A condicao p.criado_em::date BETWEEN ... provocou Parallel Seq Scan
+na tabela pedidos.
+
+Resultados observados:
+- Uma execucao inicial: aproximadamente 8.186 ms.
+- Execucoes posteriores: aproximadamente 644 a 730 ms.
+- Plano: Parallel Seq Scan em pedidos e Index Scan em itens_pedido.
+
+### Consulta reescrita
+Foi utilizado o intervalo semiaberto:
+- p.criado_em >= '2024-01-01'
+- p.criado_em < '2024-01-08'
+
+Resultados observados:
+- Primeira execucao: aproximadamente 248 ms.
+- Execucao posterior: aproximadamente 38 ms.
+- Plano: Bitmap Index Scan em idx_pedidos_criado_em,
+  seguido de Parallel Bitmap Heap Scan.
+
+### Interpretacao
+A reescrita permitiu aproveitar o indice existente na coluna criado_em.
+A comparacao sugere um ganho expressivo, mas os tempos nao devem ser tratados
+como benchmark definitivo, pois o cache influencia os resultados.
+
+As duas consultas retornaram 12.945 linhas.
+
+## Experimento 2 - Relatorio de produtos mais vendidos
+
+Consulta analisada: total de unidades e receita por produto, considerando
+pedidos cujo status e diferente de cancelado.
+
+Resultados:
+- Primeira execucao: aproximadamente 2.877 ms.
+- Segunda execucao: aproximadamente 2.737 ms.
+- Plano utilizou Parallel Seq Scan em itens_pedido e pedidos.
+- Foram processados aproximadamente 1,5 milhao de itens.
+- O plano utilizou Hash Join e HashAggregate.
+- O resultado final apresentou 10 produtos, mas a agregacao processou
+  aproximadamente 19.206 grupos de produtos.
+
+### Interpretacao
+O LIMIT 10 nao elimina a necessidade de calcular os grupos e suas receitas
+antes de selecionar os dez primeiros.
+
+Os indices existentes nas chaves estrangeiras e no status nao foram escolhidos
+pelo otimizador nessa consulta. Isso nao significa que os indices estejam
+incorretos: como a consulta processa uma parcela ampla dos dados, a leitura
+sequencial pode ser mais vantajosa.
+
+A pequena diferenca entre as duas execucoes sugere que aquecer o cache,
+isoladamente, nao elimina esse custo. JOINs e agregacoes sobre grande volume
+de dados continuam relevantes.
+
+## Experimento 3 - Agregacao no PostgreSQL
+
+Foram comparadas duas consultas para o periodo de 01/01/2024 a 07/01/2024.
+
+### Consulta detalhada
+Retorna uma linha por item de pedido:
+- 12.945 linhas.
+- Execucao observada: aproximadamente 34,5 ms.
+- Buffers compartilhados em cache: 18.319.
+
+### Consulta agrupada
+Calcula no PostgreSQL:
+- Quantidade de pedidos distintos por dia.
+- Quantidade total de itens.
+- Receita total.
+
+Resultados:
+- 7 linhas, uma por dia.
+- Execucao observada: aproximadamente 38,1 ms.
+- Buffers compartilhados em cache: 18.349.
+
+### Interpretacao
+A consulta agrupada reduziu muito a quantidade de linhas retornadas,
+mas nao foi mais rapida nessa medicao.
+
+O GROUP BY, o COUNT(DISTINCT) e as somas tambem possuem custo.
+Portanto, nao se pode afirmar que agregar no banco sempre melhora
+o tempo de execucao.
+
+A reducao de linhas pode ser relevante para diminuir o volume de dados
+transferido e o trabalho posterior da aplicacao, mas isso ainda precisa
+ser medido diretamente.
+
+A consulta agrupada retornou sete dias e contou pedidos distintos para
+evitar contar o mesmo pedido varias vezes por causa do JOIN com os itens.
+
+## Experimento 4 - Precisao numerica
+
+Foi verificado o comportamento do driver pg ao retornar agregacoes SQL.
+
+Resultados:
+- COUNT(*)::bigint retornou string.
+- SUM(quantidade::bigint) retornou string.
+- SUM(quantidade::bigint * preco_unitario_centavos::bigint) retornou string.
+- Receita total observada: 738359727310 centavos.
+
+O valor atual e menor que Number.MAX_SAFE_INTEGER, portanto sua conversao
+para Number e segura para este conjunto de dados.
+
+### Interpretacao
+O driver pg retorna valores BIGINT como string por padrao.
+A aplicacao precisa tratar essa conversao explicitamente caso utilize
+agregacoes SQL em respostas JSON.
+
+Essa verificacao vale para os dados atuais. Se os valores crescerem,
+a seguranca da conversao deve ser reavaliada.
+
+## Experimento 5 - Tamanho das respostas JSON
+
+Periodo: 01/01/2024 a 07/01/2024.
+
+Medição com json_agg e octet_length:
+- Consulta detalhada: 5.138.162 bytes.
+- Consulta agrupada por dia: 558 bytes.
+- Redução aproximada: 99,99%.
+
+Atenção: as estruturas retornam informações diferentes.
+A consulta detalhada contém dados por item; a agrupada contém
+totais por dia. A medição representa o tamanho do JSON produzido
+no PostgreSQL, não uma captura direta do tráfego HTTP.
+
+## Experimento 6 - Comparação de tempo SQL
+
+Consultas com o mesmo período e filtro:
+- Detalhada: 34,453 ms em uma execução; 35,966 ms em outra.
+- Agrupada: 38,093 ms em uma execução anterior.
+
+Na comparação de 34,453 ms contra 38,093 ms, a agrupada
+foi aproximadamente 10,6% mais lenta.
+
+As execuções são pontuais, não uma série estatística controlada.
+O resultado não demonstra ganho de tempo SQL com o agrupamento.
+
+A principal vantagem observada foi a redução do tamanho do JSON.

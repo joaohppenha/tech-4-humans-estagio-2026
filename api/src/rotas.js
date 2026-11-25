@@ -108,3 +108,5 @@ rotas.get('/clientes/:id/pedidos', assincrono(async (req, res) => {
 
   res.json(Array.from(pedidosMap.values()));
 }));
+
+module.exports = rotas;
