@@ -2,7 +2,7 @@
 
 ## Resumo
 
-Este trabalho investiga gargalos de desempenho em uma aplicação de comércio eletrônico composta por uma API Node.js/Express e um banco de dados PostgreSQL 16. A investigação analisa o comportamento da aplicação sob carga concorrente, examina consultas SQL e compara intervenções relacionadas à criação de índices e à redução de consultas repetidas.
+Este trabalho artigo investiga gargalos de desempenho em uma aplicação de comércio eletrônico composta por uma API Node.js/Express e um banco de dados PostgreSQL 16. A investigação analisa o comportamento da aplicação sob carga concorrente, examina consultas SQL e compara intervenções relacionadas à criação de índices e à redução de consultas repetidas.
 
 O ambiente experimental utiliza dados sintéticos determinísticos, compostos por 100 mil clientes, 20 mil produtos, 500 mil pedidos e 1,5 milhão de itens de pedido. Os testes de carga foram realizados com 20 usuários virtuais durante 60 segundos, em três execuções por cenário. Conforme a metodologia documentada no repositório, a comparação considera a mediana das execuções.
 
