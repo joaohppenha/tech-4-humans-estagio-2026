@@ -202,15 +202,9 @@ A tabela apresenta os valores medianos apurados para as três execuções de cad
 
 A introdução dos índices esteve associada a um aumento de aproximadamente 163% no throughput mediano em relação à linha de base.
 
-A mediana da latência caiu aproximadamente 62,5%, passando de 1.501,7 ms para 563,2 ms. O p95 caiu aproximadamente 57,2%.
+A mediana da latência caiu aproximadamente 62,5%, passando de 1.501,7 ms para 563,2 ms. O p95 caiu aproximadamente 57,2% e esses resultados sustentam a hipótese de que as alterações de indexação contribuíram para melhorar o desempenho geral no cenário avaliado. Porém, a comparação entre o cenário com índices e a etapa posterior de refatoração apresenta um resultado diferente.
 
-Esses resultados sustentam a hipótese de que as alterações de indexação contribuíram para melhorar o desempenho geral no cenário avaliado.
-
-Entretanto, a comparação entre o cenário com índices e a etapa posterior de refatoração apresenta um resultado diferente.
-
-O throughput passou de 7,19 para 7,29 req/s, uma diferença aproximada de 1,4%. A mediana da latência caiu de 563,2 para 530 ms, redução aproximada de 5,9%. Por outro lado, o p95 aumentou de 9.916,3 para 11.027,2 ms, piora aproximada de 11,2%. O p99 também aumentou de 19.195,4 para 19.941,4 ms.
-
-Portanto, não é possível afirmar que a refatoração da rota N+1 produziu uma melhoria geral e consistente em todas as métricas.
+O throughput passou de 7,19 para 7,29 req/s, uma diferença aproximada de 1,4%. A mediana da latência caiu de 563,2 para 530 ms, redução aproximada de 5,9%. Por outro lado, o p95 aumentou de 9.916,3 para 11.027,2 ms, piora aproximada de 11,2%. O p99 também aumentou de 19.195,4 para 19.941,4 ms. Portanto, não é possível afirmar que a refatoração da rota N+1 produziu uma melhoria geral e consistente em todas as métricas.
 
 A interpretação mais adequada é que a indexação esteve associada à maior mudança observada no teste de carga. A refatoração reduziu a quantidade de consultas da rota investigada, mas seu benefício adicional não foi demonstrado de maneira uniforme no conjunto de requisições.
 
@@ -220,11 +214,7 @@ A mediana representa o valor central das observações e é menos sensível a va
 
 O p95 representa o limite abaixo do qual se encontram 95% das observações. Assim, ele ajuda a examinar a experiência das requisições mais lentas.
 
-A redução da mediana não implica necessariamente redução proporcional do p95 ou do p99. No cenário refatorado, a mediana melhorou em relação ao cenário somente com índices, enquanto os percentis superiores pioraram.
-
-Essa diferença é relevante: uma otimização pode beneficiar o comportamento típico sem melhorar a cauda de latência.
-
-Além disso, o período de 60 segundos e a distribuição de requisições por rota limitam a precisão de percentis calculados sobre poucas amostras. Por esse motivo, os percentis devem ser interpretados dentro das condições específicas do experimento.
+A redução da mediana não implica necessariamente redução proporcional do p95 ou do p99. No cenário refatorado, a mediana melhorou em relação ao cenário somente com índices, enquanto os percentis superiores pioraram. Essa diferença é relevante: uma otimização pode beneficiar o comportamento típico sem melhorar a cauda de latência. Além disso, o período de 60 segundos e a distribuição de requisições por rota limitam a precisão de percentis calculados sobre poucas amostras. Por esse motivo, os percentis devem ser interpretados dentro das condições específicas do experimento.
 
 ## 7. Experimentos SQL adicionais
 
@@ -257,11 +247,7 @@ Os tempos observados foram:
 | Filtro com `::date` | aproximadamente 8.186 ms | aproximadamente 644–730 ms |
 | Intervalo semiaberto | aproximadamente 248 ms | aproximadamente 38 ms |
 
-A diferença entre a primeira execução e as posteriores evidencia a influência das condições de cache. Portanto, esses tempos não devem ser apresentados como uma comparação controlada de desempenho.
-
-A evidência mais consistente é a mudança do plano de execução: a consulta reformulada passou a utilizar o índice existente, enquanto a condição original provocava varredura sequencial.
-
-Esse experimento confirma que a forma de escrever o filtro temporal pode influenciar a possibilidade de utilização de um índice B-tree.
+A diferença entre a primeira execução e as posteriores evidencia a influência das condições de cache. Portanto, esses tempos não devem ser apresentados como uma comparação controlada de desempenho. A evidência mais consistente é a mudança do plano de execução: a consulta reformulada passou a utilizar o índice existente, enquanto a condição original provocava varredura sequencial. Esse experimento confirma que a forma de escrever o filtro temporal pode influenciar a possibilidade de utilização de um índice B-tree.
 
 ### 7.2 Consulta de produtos mais vendidos
 
