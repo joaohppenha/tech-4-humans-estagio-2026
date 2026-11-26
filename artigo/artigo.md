@@ -138,17 +138,16 @@ Na implementação original, o fluxo executava:
 
 Considerando `P` como a quantidade de pedidos e `I` como a quantidade de itens retornados, a quantidade de consultas era:
 
-\[
-Q_{\text{original}} = 2 + P + I
-\]
+$$ Q_{\text{original}} = 2 + P + I $$
+
 
 A hipótese era que essa repetição aumentava o custo de comunicação com o banco e o tempo total de atendimento da requisição.
 
 A alternativa investigada utilizou uma consulta com `LEFT JOIN`, mantendo a verificação de existência do cliente e agrupando os resultados na aplicação:
 
-\[
+$$
 Q_{\text{refatorada}} = 2
-\]
+$$
 
 A redução da quantidade de consultas é uma propriedade estrutural da refatoração. A hipótese adicional de melhoria geral de desempenho precisaria ser confirmada pelos testes.
 
