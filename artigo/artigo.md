@@ -18,9 +18,7 @@ Os resultados mostram que algumas hipóteses foram confirmadas, outras parcialme
 
 ## 1. Introdução
 
-O desempenho de aplicações web que utilizam bancos de dados relacionais depende de diferentes fatores, entre eles a estrutura das consultas, a organização dos dados, os índices disponíveis, a quantidade de operações executadas e a concorrência de acesso.
-
-Em aplicações que realizam diversas operações de leitura, consultas repetidas podem aumentar o tempo de resposta e o custo de comunicação entre a aplicação e o banco. Da mesma forma, filtros construídos de maneira inadequada podem impedir que o sistema de gerenciamento de banco de dados utilize índices disponíveis.
+O desempenho de aplicações web que utilizam bancos de dados relacionais depende de diferentes fatores, entre eles a estrutura das consultas, a organização dos dados, os índices disponíveis, a quantidade de operações executadas e a concorrência de acesso. Em aplicações que realizam diversas operações de leitura, consultas repetidas podem aumentar o tempo de resposta e o custo de comunicação entre a aplicação e o banco. Da mesma forma, filtros construídos de maneira inadequada podem impedir que o sistema de gerenciamento de banco de dados utilize índices disponíveis.
 
 Este trabalho investiga uma aplicação de comércio eletrônico desenvolvida com Node.js, Express e PostgreSQL 16. O objetivo não é apenas aplicar técnicas de otimização, mas verificar se os problemas inicialmente identificados explicam o comportamento observado e se as intervenções produzem os efeitos esperados.
 
@@ -46,9 +44,7 @@ A aplicação é composta por:
 - ambiente de execução baseado em contêineres Docker;
 - testes de carga realizados com k6.
 
-A implementação examinada em `api/src/db.js` utiliza a classe `Client` do pacote `pg`. A função de consulta instancia um cliente, estabelece uma conexão, executa o comando SQL e encerra a conexão.
-
-Portanto, a implementação examinada não utiliza um pool de conexões (`Pool`). Essa característica é importante para a investigação, pois consultas repetidas também implicam repetição do ciclo de abertura e encerramento de conexões.
+A implementação examinada em `api/src/db.js` utiliza a classe `Client` do pacote `pg`. A função de consulta instancia um cliente, estabelece uma conexão, executa o comando SQL e encerra a conexão. Portanto, a implementação examinada não utiliza um pool de conexões (`Pool`). Essa característica é importante para a investigação, pois consultas repetidas também implicam repetição do ciclo de abertura e encerramento de conexões.
 
 ### 2.2 Dados utilizados
 
@@ -61,9 +57,7 @@ O banco foi preenchido com dados sintéticos e determinísticos. As quantidades 
 | Pedidos | 500.000 |
 | Itens de pedido | 1.500.000 |
 
-Os scripts de geração permitem reproduzir a mesma estrutura de dados em novas instalações. Os registros não representam pessoas reais.
-
-A distribuição sintética permite repetir os experimentos, mas impõe uma limitação: os resultados dependem das características dessa distribuição e não devem ser generalizados automaticamente para qualquer aplicação de comércio eletrônico.
+Os scripts de geração permitem reproduzir a mesma estrutura de dados em novas instalações. Os registros não representam pessoas reais e a distribuição sintética permite repetir os experimentos, mas impõe uma limitação: os resultados dependem das características dessa distribuição e não devem ser generalizados automaticamente para qualquer aplicação de comércio eletrônico.
 
 ### 2.3 Limites de infraestrutura
 
@@ -112,11 +106,9 @@ A investigação começou com duas hipóteses principais.
 
 ### 4.1 H1 — Índices inadequados
 
-A primeira hipótese era que a ausência de índices em colunas utilizadas em filtros e relacionamentos aumentava o custo de determinadas consultas.
+A primeira hipótese era que a ausência de índices em colunas utilizadas em filtros e relacionamentos aumentava o custo de determinadas consultas. Foram considerados os seguintes atributos:
 
-Foram considerados os seguintes atributos:
-
-- `clientes.lower(email)`;
+- `clientes.lower (email)`;
 - `pedidos.cliente_id`;
 - `pedidos.status`;
 - `pedidos.criado_em`;
@@ -141,9 +133,7 @@ Considerando `P` como a quantidade de pedidos e `I` como a quantidade de itens r
 $$ Q_{\text{original}} = 2 + P + I $$
 
 
-A hipótese era que essa repetição aumentava o custo de comunicação com o banco e o tempo total de atendimento da requisição.
-
-A alternativa investigada utilizou uma consulta com `LEFT JOIN`, mantendo a verificação de existência do cliente e agrupando os resultados na aplicação:
+A hipótese era que essa repetição aumentava o custo de comunicação com o banco e o tempo total de atendimento da requisição e alternativa investigada utilizou uma consulta com `LEFT JOIN`, mantendo a verificação de existência do cliente e agrupando os resultados na aplicação:
 
 $$
 Q_{\text{refatorada}} = 2
@@ -183,9 +173,7 @@ Além dos testes de carga, foram executadas consultas diretamente no PostgreSQL 
 EXPLAIN (ANALYZE, BUFFERS)
 ```
 
-Esses experimentos permitiram examinar os planos de execução, comparar filtros e observar a utilização de índices.
-
-As medições adicionais foram exploratórias. Não constituem uma nova bateria controlada de três execuções por consulta. Por isso, seus tempos são apresentados como observações pontuais, e não como resultados estatísticos equivalentes aos testes de carga.
+Esses experimentos permitiram examinar os planos de execução, comparar filtros e observar a utilização de índices. As medições adicionais foram exploratórias. Não constituem uma nova bateria controlada de três execuções por consulta. Por isso, seus tempos são apresentados como observações pontuais, e não como resultados estatísticos equivalentes aos testes de carga.
 
 ### 5.3 Rastreabilidade
 
@@ -198,9 +186,7 @@ Os cenários de carga foram registrados no histórico do repositório. Entre os 
 | `bbb819f` | Etapa de refatoração N+1 |
 | `5d0761d` | Registro posterior da investigação SQL e dos testes HTTP |
 
-O commit `5d0761d` também registra os arquivos de investigação exploratória em `resultados/20261125-172900-investigacao-sql/`.
-
-A identificação do commit é importante para relacionar cada resultado à versão de código correspondente. Resultados de versões históricas não devem ser confundidos com o comportamento da versão atual da API.
+O commit `5d0761d` também registra os arquivos de investigação exploratória em `resultados/20261125-172900-investigacao-sql/`. A identificação do commit é importante para relacionar cada resultado à versão de código correspondente. Resultados de versões históricas não devem ser confundidos com o comportamento da versão atual da API.
 
 ## 6. Resultados dos testes de carga
 
@@ -314,11 +300,7 @@ A comparação pontual apresentou:
 | Detalhada | 12.945 | 34,453 ms |
 | Agrupada | 7 | 38,093 ms |
 
-A consulta agrupada foi aproximadamente 10,6% mais lenta nessa comparação.
-
-Portanto, a hipótese de que a agregação diretamente no banco reduziria o tempo de execução SQL não foi confirmada pelo experimento.
-
-Entretanto, também foi calculado o tamanho das representações JSON produzidas no PostgreSQL:
+A consulta agrupada foi aproximadamente 10,6% mais lenta nessa comparação. Portanto, a hipótese de que a agregação diretamente no banco reduziria o tempo de execução SQL não foi confirmada pelo experimento. Porém, também foi calculado o tamanho das representações JSON produzidas no PostgreSQL:
 
 | Estrutura | Tamanho calculado |
 |---|---:|
@@ -327,11 +309,7 @@ Entretanto, também foi calculado o tamanho das representações JSON produzidas
 
 A redução aproximada foi de 99,99%.
 
-Essa diferença precisa ser interpretada com cuidado. As estruturas não preservam a mesma quantidade de informação: a resposta detalhada apresenta campos de cada item, enquanto a agrupada apresenta totais por dia.
-
-Além disso, o tamanho foi calculado a partir de representações JSON no PostgreSQL. Não corresponde a uma captura direta do corpo HTTP transmitido pela API.
-
-A conclusão é que a agregação reduziu o tamanho da representação calculada, mas não demonstrou menor tempo de execução SQL no teste realizado.
+Essa diferença precisa ser interpretada com cuidado. As estruturas não preservam a mesma quantidade de informação: a resposta detalhada apresenta campos de cada item, enquanto a agrupada apresenta totais por dia. Além disso, o tamanho foi calculado a partir de representações JSON no PostgreSQL. Não corresponde a uma captura direta do corpo HTTP transmitido pela API e a conclusão é que a agregação reduziu o tamanho da representação calculada, mas não demonstrou menor tempo de execução SQL no teste realizado.
 
 ### 7.4 Precisão numérica no Node.js
 
@@ -346,11 +324,7 @@ No conjunto de dados analisado, foram observados:
 | Quantidade total de itens | string | 2.999.999 |
 | Receita total em centavos | string | 738.359.727.310 |
 
-O valor da receita, quando convertido para `Number`, permanece dentro do intervalo de inteiros seguros do JavaScript.
-
-Isso não garante segurança para valores arbitrariamente maiores. Se o volume financeiro crescer, a conversão deverá ser reavaliada para evitar perda de precisão.
-
-O experimento evidencia que a otimização de consultas também exige atenção à representação dos tipos numéricos entre o PostgreSQL e a aplicação.
+O valor da receita, quando convertido para `Number`, permanece dentro do intervalo de inteiros seguros do JavaScript e isso não garante segurança para valores arbitrariamente maiores. Se o volume financeiro crescer, a conversão deverá ser reavaliada para evitar perda de precisão. O experimento evidencia que a otimização de consultas também exige atenção à representação dos tipos numéricos entre o PostgreSQL e a aplicação.
 
 ## 8. Testes HTTP e compatibilidade
 
@@ -370,9 +344,7 @@ Os resultados registrados em `resultados/20261125-172900-investigacao-sql/http-m
 
 A resposta 404 de `GET /clientes/11` não demonstra que o cliente não existe no banco. Essa rota individual não está implementada na versão atual examinada da API.
 
-O projeto também possui um verificador de contrato com 42 casos fixos de requisição. Esses casos verificam respostas esperadas, incluindo códigos HTTP e corpos JSON. Eles não representam 42 rotas distintas nem comprovam o comportamento para todas as entradas possíveis.
-
-Os testes manuais complementam o verificador automatizado, mas não substituem uma bateria abrangente de testes funcionais.
+O projeto também possui um verificador de contrato com 42 casos fixos de requisição. Esses casos verificam respostas esperadas, incluindo códigos HTTP e corpos JSON. Eles não representam 42 rotas distintas nem comprovam o comportamento para todas as entradas possíveis. Os testes manuais complementam o verificador automatizado, mas não substituem uma bateria abrangente de testes funcionais.
 
 ## 9. Discussão das hipóteses
 
@@ -400,13 +372,7 @@ Os resultados permitem classificar as hipóteses em três grupos.
 
 ### 9.4 Como tratar hipóteses que não se confirmam
 
-Uma hipótese não confirmada não deve ser transformada em uma conclusão positiva apenas porque a técnica utilizada é conhecida.
-
-No caso da agregação SQL, o resultado indica que reduzir a quantidade de linhas retornadas não garante menor tempo de execução no banco. Um próximo experimento deveria medir separadamente o tempo SQL, a serialização, o tamanho efetivo do corpo HTTP e o tempo total da requisição.
-
-No caso da refatoração N+1, seria necessário isolar a rota em um teste de carga específico, controlar a quantidade de pedidos e itens por cliente e comparar o tempo total, o número de conexões e a quantidade de consultas executadas.
-
-No caso das conexões, a implementação de um pool poderia ser avaliada em um experimento separado, comparando diferentes tamanhos de pool e níveis de concorrência.
+Uma hipótese não confirmada não deve ser transformada em uma conclusão positiva apenas porque a técnica utilizada é conhecida. No caso da agregação SQL, o resultado indica que reduzir a quantidade de linhas retornadas não garante menor tempo de execução no banco. Um próximo experimento deveria medir separadamente o tempo SQL, a serialização, o tamanho efetivo do corpo HTTP e o tempo total da requisição. Já da refatoração N+1, seria necessário isolar a rota em um teste de carga específico, controlar a quantidade de pedidos e itens por cliente e comparar o tempo total, o número de conexões e a quantidade de consultas executadas. Por fim, das conexões, a implementação de um pool poderia ser avaliada em um experimento separado, comparando diferentes tamanhos de pool e níveis de concorrência.
 
 Essa abordagem evita transformar uma expectativa técnica em uma conclusão sem evidência.
 
@@ -430,17 +396,11 @@ Os experimentos adicionais com `EXPLAIN` foram pontuais e não constituem uma ba
 
 ### 10.5 Divergência entre versões do repositório
 
-A versão atual examinada da API contém as rotas de saúde, listagem de clientes e consulta de pedidos por cliente. O README descreve um conjunto mais amplo de funcionalidades, e o histórico do Git contém implementações anteriores de relatórios.
-
-A consulta histórica de vendas por dia foi recuperada de um commit anterior (`94e9199`). Ela buscava linhas detalhadas e realizava a agregação em JavaScript com `Map` e `Set`. Os experimentos SQL adicionais foram executados diretamente no PostgreSQL, utilizando consultas recuperadas desse histórico, e não por chamadas HTTP a uma rota de relatório existente na versão atual.
-
-Essa distinção é necessária para que o artigo não atribua à versão atual funcionalidades que pertencem ao histórico do projeto.
+A versão atual examinada da API contém as rotas de saúde, listagem de clientes e consulta de pedidos por cliente. O README descreve um conjunto mais amplo de funcionalidades, e o histórico do Git contém implementações anteriores de relatórios. A consulta histórica de vendas por dia foi recuperada de um commit anterior (`94e9199`). Ela buscava linhas detalhadas e realizava a agregação em JavaScript com `Map` e `Set`. Os experimentos SQL adicionais foram executados diretamente no PostgreSQL, utilizando consultas recuperadas desse histórico, e não por chamadas HTTP a uma rota de relatório existente na versão atual. Essa distinção é necessária para que o artigo não atribua à versão atual funcionalidades que pertencem ao histórico do projeto.
 
 ### 10.6 Medições de recursos
 
-Alguns valores resumidos de CPU e memória apresentaram divergências em relação aos arquivos CSV brutos. Por esse motivo, esses valores não são utilizados como evidência conclusiva neste artigo.
-
-A ausência desses números evita apresentar uma comparação de recursos que não esteja suficientemente reconciliada com os dados originais.
+Alguns valores resumidos de CPU e memória apresentaram divergências em relação aos arquivos CSV brutos. Por esse motivo, esses valores não são utilizados como evidência conclusiva neste artigo. A ausência desses números evita apresentar uma comparação de recursos que não esteja suficientemente reconciliada com os dados originais.
 
 ## 11. Trabalhos futuros
 
